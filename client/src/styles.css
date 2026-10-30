@@ -54,13 +54,15 @@ input, button { font-family: inherit; }
 
 .sidebar { width: 280px; background: #161b22; border-right: 1px solid #21262d; display: flex; flex-direction: column; padding: 16px; }
 .sidebar-header { display: flex; align-items: center; gap: 8px; }
-.sidebar-header h1 { font-size: 18px; color: #58a6ff; margin: 0; }
+.sidebar-header h1 { font-size: 18px; color: #f78166; margin: 0; }
+.brand-logo { flex-shrink: 0; width: 28px; height: 28px; border-radius: 7px; background: rgba(247, 129, 102, 0.12); color: #f78166; display: flex; align-items: center; justify-content: center; }
 .live-badge { background: #238636; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; }
 
-.sidebar-stats { display: flex; gap: 16px; margin: 16px 0; }
+.sidebar-stats { display: flex; align-items: center; gap: 16px; margin: 16px 0; }
 .sidebar-stats div { display: flex; flex-direction: column; }
 .sidebar-stats strong { font-size: 20px; }
 .sidebar-stats span { font-size: 12px; color: #8b949e; }
+.sidebar-stats-divider { width: 1px; align-self: stretch; background: #21262d; }
 
 .add-server-btn { padding: 8px; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: #c9d1d9; cursor: pointer; margin-bottom: 8px; }
 
@@ -113,17 +115,23 @@ input, button { font-family: inherit; }
 .status-dot.connecting { background: #d29922; }
 .status-dot.disconnected { background: #f85149; }
 
-.sidebar-footer { border-top: 1px solid #21262d; padding-top: 12px; display: flex; align-items: center; justify-content: space-between; }
-.user-info { display: flex; flex-direction: column; align-items: flex-start; background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 6px; text-align: left; }
+.sidebar-footer { margin-top: auto; border-top: 1px solid #21262d; padding-top: 12px; display: flex; align-items: center; justify-content: space-between; }
+.user-info { display: flex; align-items: center; gap: 8px; background: transparent; border: none; cursor: pointer; padding: 4px; border-radius: 6px; text-align: left; }
 .user-info:hover { background: #21262d; }
-.user-info strong { font-size: 13px; color: #c9d1d9; }
-.user-info span { font-size: 11px; color: #8b949e; }
+.user-info-text { display: flex; flex-direction: column; align-items: flex-start; }
+.user-info-text strong { font-size: 13px; color: #c9d1d9; }
+.user-info-text span { font-size: 11px; color: #8b949e; }
+
+.user-avatar { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #21262d; border: 1px solid #30363d; color: #58a6ff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
 .success-banner { background: #0f2d1d; color: #3fb950; padding: 8px 10px; border-radius: 6px; font-size: 13px; }
 .profile-modal h3 { font-size: 13px; color: #8b949e; margin: 0 0 4px; }
 .profile-modal hr.profile-divider { border: none; border-top: 1px solid #21262d; margin: 18px 0; }
 
 button.secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+
+.logout-btn { background: transparent; border: 1px solid #f85149; color: #f85149; border-radius: 6px; padding: 6px 10px; cursor: pointer; font-weight: 600; }
+.logout-btn:hover { background: #f85149; color: #0d1117; }
 
 /* Terminal area */
 .terminal-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
@@ -198,3 +206,15 @@ button.secondary { background: #21262d; border: 1px solid #30363d; color: #c9d1d
 .auth-type-toggle button.auth-type-active { background: #21262d; color: #c9d1d9; border-color: #58a6ff; }
 
 .key-textarea { padding: 9px; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #c9d1d9; margin-top: 4px; width: 100%; font-family: Consolas, monospace; font-size: 12px; resize: vertical; }
+
+.field-hint { margin: 4px 0 0; font-size: 11px; color: #8b949e; }
+
+.server-item-access-btn { background: transparent; border: none; color: #8b949e; cursor: pointer; padding: 4px; border-radius: 4px; flex-shrink: 0; }
+.server-item-access-btn:hover { background: #21262d; color: #58a6ff; }
+
+.access-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.access-item { display: flex; align-items: center; justify-content: space-between; background: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 8px 10px; font-size: 12px; }
+.access-item-owner { color: #8b949e; }
+.access-add-row { margin-top: 10px; gap: 8px; }
+.access-add-row input { flex: 1; }
+.access-add-row button { padding: 0 14px; border-radius: 6px; border: none; background: #58a6ff; color: #0d1117; cursor: pointer; }

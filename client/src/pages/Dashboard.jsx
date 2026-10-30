@@ -5,6 +5,7 @@ import Sidebar from '../components/Sidebar.jsx';
 import TerminalTabs from '../components/TerminalTabs.jsx';
 import AddServerModal from '../components/AddServerModal.jsx';
 import ProfileModal from '../components/ProfileModal.jsx';
+import ManageAccessModal from '../components/ManageAccessModal.jsx';
 import SnippetsPanel from '../components/SnippetsPanel.jsx';
 import CommandHistoryPanel from '../components/CommandHistoryPanel.jsx';
 import LogsPanel from '../components/LogsPanel.jsx';
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const [activeId, setActiveId] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [accessModalServer, setAccessModalServer] = useState(null);
   const [rightPanel, setRightPanel] = useState('snippets');
   const socketRef = useRef(null);
 
@@ -76,6 +78,7 @@ export default function Dashboard() {
         onConnect={handleConnect}
         onAddServer={() => setShowAddModal(true)}
         onOpenProfile={() => setShowProfileModal(true)}
+        onManageAccess={setAccessModalServer}
       />
       {socketRef.current && (
         <TerminalTabs
@@ -128,6 +131,10 @@ export default function Dashboard() {
       )}
 
       {showProfileModal && <ProfileModal onClose={() => setShowProfileModal(false)} />}
+
+      {accessModalServer && (
+        <ManageAccessModal server={accessModalServer} onClose={() => setAccessModalServer(null)} />
+      )}
     </div>
   );
 }

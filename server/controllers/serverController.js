@@ -81,6 +81,36 @@ async function updateServer(req, res) {
   res.json({ server: server.toSafeJSON() });
 }
 
+async function getServerAccess(req, res) {
+  const server = await Server.findById(req.params.id)
+    .populate('owner', 'name email')
+    .populate('sharedWith', 'name email');
+  if (!server) return res.status(404).json({ message: 'Server not found' });
+  if (!canAccess(server, req.user)) return res.status(403).json({ message: 'Not allowed' });
+
+  res.json({
+    owner: { id: server.owner._id, name: server.owner.name, email: server.owner.email },
+    sharedWith: server.sharedWith.map((u) => ({ id: u._id, name: u.name, email: u.email })),
+  });
+}
+
+async function updateServerAccess(req, res) {
+  const server = await Server.findById(req.params.id);
+  if (!server) return res.status(404).json({ message: 'Server not found' });
+  if (String(server.owner) !== String(req.user._id) && req.user.role !== 'admin') {
+    return res.status(403).json({ message: 'Not allowed' });
+  }
+
+  const { emails } = req.body;
+  if (!Array.isArray(emails)) return res.status(400).json({ message: 'emails must be an array' });
+
+  const users = await User.find({ email: { $in: emails.map((e) => e.toLowerCase()) } });
+  server.sharedWith = users.map((u) => u._id);
+  await server.save();
+
+  res.json({ sharedWith: users.map((u) => ({ id: u._id, name: u.name, email: u.email })) });
+}
+
 async function deleteServer(req, res) {
   const server = await Server.findById(req.params.id);
   if (!server) return res.status(404).json({ message: 'Server not found' });
@@ -91,4 +121,12 @@ async function deleteServer(req, res) {
   res.json({ message: 'Deleted' });
 }
 
-module.exports = { listServers, createServer, updateServer, deleteServer, canAccess };
+module.exports = {
+  listServers,
+  createServer,
+  updateServer,
+  deleteServer,
+  canAccess,
+  getServerAccess,
+  updateServerAccess,
+};

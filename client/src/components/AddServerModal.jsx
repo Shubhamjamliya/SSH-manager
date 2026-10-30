@@ -13,6 +13,7 @@ export default function AddServerModal({ onClose, onCreated }) {
     privateKey: '',
     passphrase: '',
     group: 'Default',
+    shareWith: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showPassphrase, setShowPassphrase] = useState(false);
@@ -28,7 +29,11 @@ export default function AddServerModal({ onClose, onCreated }) {
     setError('');
     setSaving(true);
     try {
-      const res = await api.post('/api/servers', form);
+      const sharedWithEmails = form.shareWith
+        .split(',')
+        .map((e) => e.trim())
+        .filter(Boolean);
+      const res = await api.post('/api/servers', { ...form, sharedWithEmails });
       onCreated(res.data.server);
     } catch (err) {
       setError(err.response?.data?.message || 'Could not add server');
@@ -46,6 +51,14 @@ export default function AddServerModal({ onClose, onCreated }) {
         <input value={form.name} onChange={(e) => update('name', e.target.value)} required />
         <label>Group</label>
         <input value={form.group} onChange={(e) => update('group', e.target.value)} />
+
+        <label>Share with teammates (optional)</label>
+        <input
+          placeholder="teammate@example.com, another@example.com"
+          value={form.shareWith}
+          onChange={(e) => update('shareWith', e.target.value)}
+        />
+        <p className="field-hint">Comma-separated emails of existing team accounts. They'll see this server on their dashboard.</p>
         <div className="field-row">
           <div>
             <label>Host</label>
