@@ -1,11 +1,14 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const ServerModel = require('../models/Server');
-const AuditLog = require('../models/AuditLog');
 const CommandHistory = require('../models/CommandHistory');
 const { decrypt } = require('../utils/crypto');
 const { openShell, writeToShell, resizeShell, closeShell } = require('../services/sshService');
 const { canAccess } = require('../controllers/serverController');
+const { logAudit } = require('../services/auditService');
+const { trimOldest } = require('../utils/trimHistory');
+
+const COMMAND_HISTORY_LIMIT_PER_SERVER = 200;
 
 // One SSH connection per socket per terminal tab (sessionId)
 function registerTerminalSocket(io) {
@@ -63,10 +66,10 @@ function registerTerminalSocket(io) {
         );
 
         sessions.set(sessionId, conn);
-        await AuditLog.create({ user: socket.user._id, server: server._id, action: 'connect' });
+        await logAudit({ user: socket.user._id, server: server._id, action: 'connect' });
       } catch (err) {
         socket.emit('terminal:error', { sessionId, message: err.message });
-        await AuditLog.create({
+        await logAudit({
           user: socket.user._id,
           server: serverId,
           action: 'connect_failed',
@@ -95,7 +98,10 @@ function registerTerminalSocket(io) {
           if (command) {
             const serverId = sessionServerIds.get(sessionId);
             if (serverId) {
-              CommandHistory.create({ user: socket.user._id, server: serverId, command }).catch(() => {});
+              const user = socket.user._id;
+              CommandHistory.create({ user, server: serverId, command })
+                .then(() => trimOldest(CommandHistory, { user, server: serverId }, COMMAND_HISTORY_LIMIT_PER_SERVER))
+                .catch(() => {});
             }
           }
         } else if (code === 127 || code === 8) {

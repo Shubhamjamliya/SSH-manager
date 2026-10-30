@@ -1,9 +1,9 @@
 const ServerModel = require('../models/Server');
-const AuditLog = require('../models/AuditLog');
 const { decrypt } = require('../utils/crypto');
 const { connect, execCommand } = require('../services/sshService');
 const { canAccess } = require('../controllers/serverController');
 const { buildDeploymentSteps } = require('../services/deploymentSteps');
+const { logAudit } = require('../services/auditService');
 
 // Deploy runs are separate from terminal sessions: one bare SSH connection per run,
 // used only for sequential exec() calls (no PTY), closed when the run ends or is stopped.
@@ -32,7 +32,7 @@ function registerDeploySocket(io) {
       const run = { conn: null, stopped: false };
       activeRuns.set(runId, run);
 
-      await AuditLog.create({ user: socket.user._id, server: server._id, action: 'deploy_started' }).catch(() => {});
+      await logAudit({ user: socket.user._id, server: server._id, action: 'deploy_started' }).catch(() => {});
 
       try {
         const credentials =
@@ -69,7 +69,7 @@ function registerDeploySocket(io) {
 
             if (!ok && !step.continueOnError) {
               socket.emit('deploy:failed', { runId, index: i, message: `Step failed with exit code ${result.code}` });
-              await AuditLog.create({
+              await logAudit({
                 user: socket.user._id,
                 server: server._id,
                 action: 'deploy_failed',
@@ -82,7 +82,7 @@ function registerDeploySocket(io) {
           } catch (stepErr) {
             socket.emit('deploy:step-done', { runId, index: i, ok: false, output: stepErr.message });
             socket.emit('deploy:failed', { runId, index: i, message: stepErr.message });
-            await AuditLog.create({
+            await logAudit({
               user: socket.user._id,
               server: server._id,
               action: 'deploy_failed',
@@ -101,7 +101,7 @@ function registerDeploySocket(io) {
           socket.emit('deploy:stopped', { runId });
         } else {
           socket.emit('deploy:complete', { runId });
-          await AuditLog.create({ user: socket.user._id, server: server._id, action: 'deploy_finished' }).catch(() => {});
+          await logAudit({ user: socket.user._id, server: server._id, action: 'deploy_finished' }).catch(() => {});
         }
       } catch (err) {
         socket.emit('deploy:error', { runId, message: err.message });
