@@ -7,7 +7,7 @@ async function listCommandHistory(req, res) {
   if (!serverId) return res.status(400).json({ message: 'serverId query param is required' });
 
   const server = await Server.findById(serverId);
-  if (!server || !canAccess(server, req.user)) {
+  if (!server || !(await canAccess(server, req.user))) {
     return res.status(403).json({ message: 'Not allowed' });
   }
 

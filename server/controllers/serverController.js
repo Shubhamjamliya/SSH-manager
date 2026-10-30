@@ -1,16 +1,22 @@
 const Server = require('../models/Server');
 const User = require('../models/User');
+const VaultAccess = require('../models/VaultAccess');
 const { encrypt } = require('../utils/crypto');
 
-function canAccess(server, user) {
+// Vault access grants standing access to ALL of an owner's servers (current + future),
+// on top of per-server sharedWith grants.
+async function canAccess(server, user) {
   if (user.role === 'admin') return true;
   if (String(server.owner) === String(user._id)) return true;
-  return server.sharedWith.some((id) => String(id) === String(user._id));
+  if (server.sharedWith.some((id) => String(id) === String(user._id))) return true;
+  const vaultGrant = await VaultAccess.exists({ owner: server.owner, member: user._id });
+  return Boolean(vaultGrant);
 }
 
 async function listServers(req, res) {
+  const vaultOwnerIds = await VaultAccess.find({ member: req.user._id }).distinct('owner');
   const servers = await Server.find({
-    $or: [{ owner: req.user._id }, { sharedWith: req.user._id }],
+    $or: [{ owner: req.user._id }, { sharedWith: req.user._id }, { owner: { $in: vaultOwnerIds } }],
   }).sort({ group: 1, name: 1 });
   res.json({ servers: servers.map((s) => s.toSafeJSON()) });
 }
@@ -55,7 +61,7 @@ async function createServer(req, res) {
 async function updateServer(req, res) {
   const server = await Server.findById(req.params.id);
   if (!server) return res.status(404).json({ message: 'Server not found' });
-  if (!canAccess(server, req.user) || (String(server.owner) !== String(req.user._id) && req.user.role !== 'admin')) {
+  if (String(server.owner) !== String(req.user._id) && req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Not allowed' });
   }
 
@@ -86,7 +92,7 @@ async function getServerAccess(req, res) {
     .populate('owner', 'name email')
     .populate('sharedWith', 'name email');
   if (!server) return res.status(404).json({ message: 'Server not found' });
-  if (!canAccess(server, req.user)) return res.status(403).json({ message: 'Not allowed' });
+  if (!(await canAccess(server, req.user))) return res.status(403).json({ message: 'Not allowed' });
 
   res.json({
     owner: { id: server.owner._id, name: server.owner.name, email: server.owner.email },

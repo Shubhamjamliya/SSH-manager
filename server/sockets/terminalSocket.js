@@ -31,7 +31,7 @@ function registerTerminalSocket(io) {
     socket.on('terminal:connect', async ({ sessionId, serverId, cols, rows }) => {
       try {
         const server = await ServerModel.findById(serverId);
-        if (!server || !canAccess(server, socket.user)) {
+        if (!server || !(await canAccess(server, socket.user))) {
           socket.emit('terminal:error', { sessionId, message: 'Not allowed to access this server' });
           return;
         }

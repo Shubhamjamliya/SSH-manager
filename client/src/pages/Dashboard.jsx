@@ -9,6 +9,7 @@ import ManageAccessModal from '../components/ManageAccessModal.jsx';
 import SnippetsPanel from '../components/SnippetsPanel.jsx';
 import CommandHistoryPanel from '../components/CommandHistoryPanel.jsx';
 import LogsPanel from '../components/LogsPanel.jsx';
+import DeploySopPanel from '../components/DeploySopPanel.jsx';
 
 let sessionCounter = 0;
 
@@ -92,7 +93,7 @@ export default function Dashboard() {
         />
       )}
 
-      <div className="right-panel">
+      <div className={`right-panel ${rightPanel === 'deploy' ? 'right-panel-wide' : ''}`}>
         <div className="right-panel-tabs">
           <button
             className={rightPanel === 'snippets' ? 'active' : ''}
@@ -112,12 +113,19 @@ export default function Dashboard() {
           >
             Logs
           </button>
+          <button
+            className={rightPanel === 'deploy' ? 'active' : ''}
+            onClick={() => setRightPanel('deploy')}
+          >
+            Deploy SOP
+          </button>
         </div>
         {rightPanel === 'snippets' && <SnippetsPanel onRun={runInActiveTerminal} />}
         {rightPanel === 'history' && (
           <CommandHistoryPanel serverId={activeTab?.server.id} onRun={runInActiveTerminal} />
         )}
         {rightPanel === 'logs' && <LogsPanel />}
+        {rightPanel === 'deploy' && <DeploySopPanel />}
       </div>
 
       {showAddModal && (

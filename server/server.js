@@ -11,6 +11,7 @@ const serverRoutes = require('./routes/servers');
 const snippetRoutes = require('./routes/snippets');
 const commandHistoryRoutes = require('./routes/commandHistory');
 const logRoutes = require('./routes/logs');
+const vaultRoutes = require('./routes/vault');
 const registerTerminalSocket = require('./sockets/terminalSocket');
 
 const app = express();
@@ -30,6 +31,7 @@ app.use('/api/servers', serverRoutes);
 app.use('/api/snippets', snippetRoutes);
 app.use('/api/command-history', commandHistoryRoutes);
 app.use('/api/logs', logRoutes);
+app.use('/api/vault', vaultRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
