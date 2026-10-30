@@ -125,7 +125,9 @@ export default function Dashboard() {
           <CommandHistoryPanel serverId={activeTab?.server.id} onRun={runInActiveTerminal} />
         )}
         {rightPanel === 'logs' && <LogsPanel />}
-        {rightPanel === 'deploy' && <DeploySopPanel />}
+        {rightPanel === 'deploy' && socketRef.current && (
+          <DeploySopPanel socket={socketRef.current} servers={servers} />
+        )}
       </div>
 
       {showAddModal && (

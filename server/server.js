@@ -13,6 +13,7 @@ const commandHistoryRoutes = require('./routes/commandHistory');
 const logRoutes = require('./routes/logs');
 const vaultRoutes = require('./routes/vault');
 const registerTerminalSocket = require('./sockets/terminalSocket');
+const registerDeploySocket = require('./sockets/deploySocket');
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -39,6 +40,7 @@ const io = new SocketIOServer(httpServer, {
   cors: { origin: clientOrigin, credentials: true },
 });
 registerTerminalSocket(io);
+registerDeploySocket(io);
 
 const PORT = process.env.PORT || 5000;
 

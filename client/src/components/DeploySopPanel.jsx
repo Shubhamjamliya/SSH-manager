@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { buildDeploySop } from '../deploySopTemplate.js';
+import DeployRunner from './DeployRunner.jsx';
 
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
@@ -21,11 +22,12 @@ function CopyButton({ text }) {
   );
 }
 
-export default function DeploySopPanel() {
+export default function DeploySopPanel({ socket, servers }) {
   const [name, setName] = useState('');
   const [domain, setDomain] = useState('');
   const [ip, setIp] = useState('');
   const [repoUrl, setRepoUrl] = useState('');
+  const [showRunner, setShowRunner] = useState(false);
 
   const sections = useMemo(
     () => buildDeploySop({ name, domain, ip, repoUrl }),
@@ -64,6 +66,25 @@ export default function DeploySopPanel() {
           />
         </div>
       </div>
+
+      <button
+        type="button"
+        className="deploy-run-btn deploy-run-btn-full"
+        disabled={!servers?.length}
+        onClick={() => setShowRunner(true)}
+        title={!servers?.length ? 'Add a server first' : undefined}
+      >
+        Run this deployment on a server
+      </button>
+
+      {showRunner && (
+        <DeployRunner
+          socket={socket}
+          servers={servers}
+          params={{ name, domain, ip, repoUrl }}
+          onClose={() => setShowRunner(false)}
+        />
+      )}
 
       <div className="sop-sections">
         {sections.map((section) => (
