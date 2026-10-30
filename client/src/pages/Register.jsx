@@ -11,15 +11,20 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (loading) return;
     setError('');
+    setLoading(true);
     try {
       await register(name, email, password);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -42,7 +47,9 @@ export default function Register() {
           showPassword={showPassword}
           onToggle={() => setShowPassword((v) => !v)}
         />
-        <button type="submit">Create account</button>
+        <button type="submit" className="btn-loading-target" disabled={loading}>
+          {loading ? <span className="btn-spinner" /> : 'Create account'}
+        </button>
         <p className="muted">
           Already have an account? <Link to="/login">Sign in</Link>
         </p>

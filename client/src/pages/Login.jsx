@@ -10,15 +10,20 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (loading) return;
     setError('');
+    setLoading(true);
     try {
       await login(email, password);
       navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -38,7 +43,9 @@ export default function Login() {
           showPassword={showPassword}
           onToggle={() => setShowPassword((v) => !v)}
         />
-        <button type="submit">Sign in</button>
+        <button type="submit" className="btn-loading-target" disabled={loading}>
+          {loading ? <span className="btn-spinner" /> : 'Sign in'}
+        </button>
         <p className="muted">
           No account? <Link to="/register">Register</Link>
         </p>

@@ -7,6 +7,8 @@ export default function SnippetsPanel({ onRun }) {
   const [command, setCommand] = useState('');
   const [scope, setScope] = useState('private');
   const [error, setError] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     refresh();
@@ -18,7 +20,9 @@ export default function SnippetsPanel({ onRun }) {
 
   async function handleAdd(e) {
     e.preventDefault();
+    if (adding) return;
     setError('');
+    setAdding(true);
     try {
       await api.post('/api/snippets', { name, command, scope });
       setName('');
@@ -26,15 +30,21 @@ export default function SnippetsPanel({ onRun }) {
       refresh();
     } catch (err) {
       setError(err.response?.data?.message || 'Could not add snippet');
+    } finally {
+      setAdding(false);
     }
   }
 
   async function handleDelete(id) {
+    if (deletingId) return;
+    setDeletingId(id);
     try {
       await api.delete(`/api/snippets/${id}`);
       refresh();
     } catch (_err) {
       // ignore - likely not the owner
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -51,7 +61,9 @@ export default function SnippetsPanel({ onRun }) {
             <option value="private">Private</option>
             <option value="team">Team</option>
           </select>
-          <button type="submit">Add</button>
+          <button type="submit" disabled={adding}>
+            {adding ? <span className="btn-spinner" /> : 'Add'}
+          </button>
         </div>
       </form>
 
@@ -63,8 +75,8 @@ export default function SnippetsPanel({ onRun }) {
               <code className="snippet-command">{s.command}</code>
             </div>
             <span className={`snippet-scope ${s.scope}`}>{s.scope}</span>
-            <button className="snippet-delete" onClick={() => handleDelete(s.id)}>
-              x
+            <button className="snippet-delete" onClick={() => handleDelete(s.id)} disabled={deletingId === s.id}>
+              {deletingId === s.id ? <span className="btn-spinner btn-spinner-sm" /> : 'x'}
             </button>
           </div>
         ))}

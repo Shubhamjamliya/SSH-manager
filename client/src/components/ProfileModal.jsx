@@ -16,6 +16,7 @@ export default function ProfileModal({ onClose }) {
   const [vaultError, setVaultError] = useState('');
   const [vaultEmail, setVaultEmail] = useState('');
   const [vaultSaving, setVaultSaving] = useState(false);
+  const [revokingId, setRevokingId] = useState(null);
 
   useEffect(() => {
     api
@@ -27,6 +28,7 @@ export default function ProfileModal({ onClose }) {
 
   async function handleGrantVaultAccess(e) {
     e.preventDefault();
+    if (vaultSaving) return;
     setVaultError('');
     const emailToAdd = vaultEmail.trim();
     if (!emailToAdd) return;
@@ -43,11 +45,15 @@ export default function ProfileModal({ onClose }) {
   }
 
   async function handleRevokeVaultAccess(memberId) {
+    if (revokingId) return;
+    setRevokingId(memberId);
     try {
       await api.delete(`/api/vault/members/${memberId}`);
       setVaultMembers((prev) => prev.filter((m) => m.id !== memberId));
     } catch (_err) {
       // ignore
+    } finally {
+      setRevokingId(null);
     }
   }
 
@@ -61,6 +67,7 @@ export default function ProfileModal({ onClose }) {
 
   async function handleProfileSubmit(e) {
     e.preventDefault();
+    if (savingProfile) return;
     setProfileError('');
     setProfileSuccess('');
     setSavingProfile(true);
@@ -77,6 +84,7 @@ export default function ProfileModal({ onClose }) {
 
   async function handlePasswordSubmit(e) {
     e.preventDefault();
+    if (savingPassword) return;
     setPasswordError('');
     setPasswordSuccess('');
     setSavingPassword(true);
@@ -163,8 +171,13 @@ export default function ProfileModal({ onClose }) {
                       <div>{m.name}</div>
                       <div className="muted">{m.email}</div>
                     </div>
-                    <button type="button" className="snippet-delete" onClick={() => handleRevokeVaultAccess(m.id)}>
-                      x
+                    <button
+                      type="button"
+                      className="snippet-delete"
+                      onClick={() => handleRevokeVaultAccess(m.id)}
+                      disabled={revokingId === m.id}
+                    >
+                      {revokingId === m.id ? <span className="btn-spinner btn-spinner-sm" /> : 'x'}
                     </button>
                   </div>
                 ))}
@@ -180,7 +193,7 @@ export default function ProfileModal({ onClose }) {
                 onChange={(e) => setVaultEmail(e.target.value)}
               />
               <button type="submit" disabled={vaultSaving}>
-                Share
+                {vaultSaving ? <span className="btn-spinner" /> : 'Share'}
               </button>
             </form>
           </div>

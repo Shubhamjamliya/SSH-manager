@@ -26,6 +26,7 @@ export default function AddServerModal({ onClose, onCreated }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (saving) return;
     setError('');
     setSaving(true);
     try {

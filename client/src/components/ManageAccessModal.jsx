@@ -35,6 +35,7 @@ export default function ManageAccessModal({ server, onClose }) {
 
   function handleAdd(e) {
     e.preventDefault();
+    if (saving) return;
     const email = newEmail.trim().toLowerCase();
     if (!email) return;
     const emails = [...new Set([...sharedWith.map((u) => u.email), email])];
@@ -43,6 +44,7 @@ export default function ManageAccessModal({ server, onClose }) {
   }
 
   function handleRemove(email) {
+    if (saving) return;
     const emails = sharedWith.map((u) => u.email).filter((e) => e !== email);
     saveAccess(emails);
   }
@@ -72,7 +74,12 @@ export default function ManageAccessModal({ server, onClose }) {
                     <div>{u.name}</div>
                     <div className="muted">{u.email}</div>
                   </div>
-                  <button type="button" className="snippet-delete" onClick={() => handleRemove(u.email)}>
+                  <button
+                    type="button"
+                    className="snippet-delete"
+                    onClick={() => handleRemove(u.email)}
+                    disabled={saving}
+                  >
                     x
                   </button>
                 </div>
@@ -88,7 +95,7 @@ export default function ManageAccessModal({ server, onClose }) {
                 onChange={(e) => setNewEmail(e.target.value)}
               />
               <button type="submit" disabled={saving}>
-                Add
+                {saving ? <span className="btn-spinner" /> : 'Add'}
               </button>
             </form>
           </>
