@@ -6,8 +6,8 @@
   "main": "main.js",
   "scripts": {
     "prepare-client": "node scripts/build-client.js",
-    "start": "npm run prepare-client && electron .",
-    "start:fast": "electron .",
+    "start": "node init && npm run prepare-client && electron .",
+    "start:fast": "node init && electron .",
     "dist": "npm run prepare-client && electron-builder"
   },
   "devDependencies": {
