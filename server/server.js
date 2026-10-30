@@ -22,7 +22,17 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const httpServer = http.createServer(app);
 
-const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+// CLIENT_ORIGIN accepts a comma-separated list, e.g. the Vercel web app + the
+// Electron desktop app's local origin, so both can talk to this one backend.
+const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+function corsOriginCheck(origin, callback) {
+  if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+  callback(new Error('Not allowed by CORS'));
+}
 
 // Required for express-rate-limit / req.ip to see the real client IP behind
 // Render's (or any) reverse proxy, instead of rate-limiting the proxy itself.
@@ -34,7 +44,7 @@ app.use(
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
-app.use(cors({ origin: clientOrigin, credentials: true }));
+app.use(cors({ origin: corsOriginCheck, credentials: true }));
 app.use(express.json({ limit: '1mb' }));
 app.use(mongoSanitize()); // strips $/. operators from req.body/query/params to block NoSQL injection
 app.use(hpp()); // ignores duplicate query params instead of letting them override checks
@@ -60,7 +70,7 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 app.use(errorHandler);
 
 const io = new SocketIOServer(httpServer, {
-  cors: { origin: clientOrigin, credentials: true },
+  cors: { origin: allowedOrigins, credentials: true },
 });
 registerTerminalSocket(io);
 registerDeploySocket(io);
