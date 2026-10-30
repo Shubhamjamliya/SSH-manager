@@ -1,0 +1,42 @@
+{
+  "name": "serverpilot-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ServerPilot desktop app - Electron shell around the web client, talking to the hosted backend",
+  "main": "main.js",
+  "scripts": {
+    "prepare-client": "node scripts/build-client.js",
+    "start": "npm run prepare-client && electron .",
+    "start:fast": "electron .",
+    "dist": "npm run prepare-client && electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.serverpilot.app",
+    "productName": "ServerPilot",
+    "files": [
+      "main.js",
+      "app/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.developer-tools"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Development"
+    }
+  },
+  "allowScripts": {
+    "electron": true
+  }
+}
