@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 
-export default function Sidebar({ servers, statuses, onConnect, onAddServer, onOpenProfile, onManageAccess }) {
+export default function Sidebar({
+  servers,
+  statuses,
+  onConnect,
+  onAddServer,
+  onOpenProfile,
+  onManageAccess,
+  mobileOpen,
+}) {
   const { user, logout } = useAuth();
   const [showConnections, setShowConnections] = useState(false);
 
@@ -12,7 +20,7 @@ export default function Sidebar({ servers, statuses, onConnect, onAddServer, onO
   }, {});
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${mobileOpen ? 'sidebar-mobile-open' : ''}`}>
       <div className="sidebar-header">
         <span className="brand-logo">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">

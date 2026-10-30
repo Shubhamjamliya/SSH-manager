@@ -22,6 +22,8 @@ export default function Dashboard() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [accessModalServer, setAccessModalServer] = useState(null);
   const [rightPanel, setRightPanel] = useState('snippets');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileToolsOpen, setMobileToolsOpen] = useState(false);
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -39,6 +41,7 @@ export default function Dashboard() {
     const sessionId = `sess-${++sessionCounter}`;
     setTabs((prev) => [...prev, { sessionId, server }]);
     setActiveId(sessionId);
+    setMobileSidebarOpen(false);
   }
 
   function handleCloseTab(sessionId) {
@@ -73,6 +76,40 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
+      <div className="mobile-topbar">
+        <button
+          type="button"
+          className="mobile-topbar-btn"
+          onClick={() => setMobileSidebarOpen((v) => !v)}
+          aria-label="Toggle servers"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+          </svg>
+        </button>
+        <span className="mobile-topbar-title">ServerPilot</span>
+        <button
+          type="button"
+          className="mobile-topbar-btn"
+          onClick={() => setMobileToolsOpen((v) => !v)}
+          aria-label="Toggle tools"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M8 9l-4 3 4 3M16 9l4 3-4 3M13 6l-2 12" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      {(mobileSidebarOpen || mobileToolsOpen) && (
+        <div
+          className="mobile-backdrop"
+          onClick={() => {
+            setMobileSidebarOpen(false);
+            setMobileToolsOpen(false);
+          }}
+        />
+      )}
+
       <Sidebar
         servers={servers}
         statuses={serverStatuses}
@@ -80,6 +117,7 @@ export default function Dashboard() {
         onAddServer={() => setShowAddModal(true)}
         onOpenProfile={() => setShowProfileModal(true)}
         onManageAccess={setAccessModalServer}
+        mobileOpen={mobileSidebarOpen}
       />
       {socketRef.current && (
         <TerminalTabs
@@ -93,7 +131,11 @@ export default function Dashboard() {
         />
       )}
 
-      <div className={`right-panel ${rightPanel === 'deploy' ? 'right-panel-wide' : ''}`}>
+      <div
+        className={`right-panel ${rightPanel === 'deploy' ? 'right-panel-wide' : ''} ${
+          mobileToolsOpen ? 'right-panel-mobile-open' : ''
+        }`}
+      >
         <div className="right-panel-tabs">
           <button
             className={rightPanel === 'snippets' ? 'active' : ''}
