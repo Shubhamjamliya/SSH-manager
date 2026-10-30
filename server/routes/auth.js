@@ -1,13 +1,14 @@
 const express = require('express');
 const { register, login, me, updateProfile, changePassword } = require('../controllers/authController');
 const { requireAuth } = require('../middleware/auth');
+const asyncHandler = require('../utils/asyncHandler');
 
 const router = express.Router();
 
-router.post('/register', register);
-router.post('/login', login);
-router.get('/me', requireAuth, me);
-router.put('/me', requireAuth, updateProfile);
-router.put('/me/password', requireAuth, changePassword);
+router.post('/register', asyncHandler(register));
+router.post('/login', asyncHandler(login));
+router.get('/me', requireAuth, asyncHandler(me));
+router.put('/me', requireAuth, asyncHandler(updateProfile));
+router.put('/me/password', requireAuth, asyncHandler(changePassword));
 
 module.exports = router;

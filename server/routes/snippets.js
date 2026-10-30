@@ -1,13 +1,14 @@
 const express = require('express');
 const { listSnippets, createSnippet, updateSnippet, deleteSnippet } = require('../controllers/snippetController');
 const { requireAuth } = require('../middleware/auth');
+const asyncHandler = require('../utils/asyncHandler');
 
 const router = express.Router();
 
 router.use(requireAuth);
-router.get('/', listSnippets);
-router.post('/', createSnippet);
-router.put('/:id', updateSnippet);
-router.delete('/:id', deleteSnippet);
+router.get('/', asyncHandler(listSnippets));
+router.post('/', asyncHandler(createSnippet));
+router.put('/:id', asyncHandler(updateSnippet));
+router.delete('/:id', asyncHandler(deleteSnippet));
 
 module.exports = router;

@@ -8,15 +8,16 @@ const {
   updateServerAccess,
 } = require('../controllers/serverController');
 const { requireAuth } = require('../middleware/auth');
+const asyncHandler = require('../utils/asyncHandler');
 
 const router = express.Router();
 
 router.use(requireAuth);
-router.get('/', listServers);
-router.post('/', createServer);
-router.put('/:id', updateServer);
-router.delete('/:id', deleteServer);
-router.get('/:id/access', getServerAccess);
-router.put('/:id/access', updateServerAccess);
+router.get('/', asyncHandler(listServers));
+router.post('/', asyncHandler(createServer));
+router.put('/:id', asyncHandler(updateServer));
+router.delete('/:id', asyncHandler(deleteServer));
+router.get('/:id/access', asyncHandler(getServerAccess));
+router.put('/:id/access', asyncHandler(updateServerAccess));
 
 module.exports = router;
